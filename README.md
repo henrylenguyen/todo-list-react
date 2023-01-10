@@ -24,4 +24,4 @@
 - dispatch: dùng để khởi động reducer
 
 ## Sơ đồ vòng đời của useReducer
-![image](https://user-images.githubusercontent.com/114068860/211465546-7984b301-dcf4-4460-bfff-65d2f09d4bf9.png)
+![Reducer](https://user-images.githubusercontent.com/114068860/211467353-a32ce501-755d-4b27-99bd-4a81a4f55261.png)
