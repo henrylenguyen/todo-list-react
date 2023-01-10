@@ -1,5 +1,6 @@
 import { useReducer } from "react";
 import { addJob, checkJob, deleteComplete, deleteJob, setJob } from "./Todo/actions";
+import logger from "./Todo/logger";
 
 import reducer, { initState } from "./Todo/reducer";
 
@@ -12,7 +13,7 @@ const rex = /^[\s\W]/;
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
 const CardToDo = () => {
-  const [state, dispatch] = useReducer(reducer, initState);
+  const [state, dispatch] = useReducer(logger(reducer), initState);
   const { job, jobs, check } = state;
 
   // ---------------------------CHECK ĐẦU VÀO----------------------------
