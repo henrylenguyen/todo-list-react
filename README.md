@@ -1,20 +1,24 @@
-# Todo list dùng useState
+# Todo list dùng useReducer
 
-Đồ án này được làm hoàn toàn bằng useState
+Đồ án này được làm hoàn toàn bằng useReducer
 
 ## Ưu điểm
 
-Gọn hơn code thuần JavaScript
+- Gọn hơn useState và không render lại nhiều như useState
+- Mỗi phương thức được chia ra cụ thể theo từng action
 
 ## Nhược điểm
 
-- Re-render lại giao diện rất nhiều
-  => Chưa tối ưu được khuyết điểm này
+- Rất rắc rối khi mới tiếp cận
+- Chỉ dành cho những xử lí phức tạp
 
 ### Công thức useState
 
-`const [state, setState] = useState(initial value)`
+`const [state, dispatch] = useReducer(reducer, initState)`
 
-- initial value là giá trị khởi tạo, có thể là: number,string, object,array,true,false,....
+- initialState là giá trị khởi tạo và được viết dưới dạng object
 - state: sẽ luôn lấy giá trị khởi tạo khi mới chạy lần đầu
-- setState: dùng để cập nhật lại state mỗi lần re-render
+- reducer: mang 2 giá trị là state và action
+- action: mang 2 giá trị là type và payload => payload là value được truyền khi dispatch khởi chạy
+=> reducer sẽ dựa vào type để sử lí bên trong
+- dispatch: dùng để khởi động reducer

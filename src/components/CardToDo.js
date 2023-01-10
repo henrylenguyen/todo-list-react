@@ -1,81 +1,153 @@
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
+
+//---------------------------- Xác định biến khởi tạo---------------------------
+  const setLocalStorage = (key, value) => {
+    localStorage.setItem(key, JSON.stringify(value));
+  };
+const initState = {
+  job: "",
+  jobs:
+    localStorage.getItem("jobs") === null
+      ? []
+      : JSON.parse(localStorage.getItem("jobs")),
+  check:
+    localStorage.getItem("jobsComplete") === null
+      ? []
+      : JSON.parse(localStorage.getItem("jobsComplete")),
+};
+// --------------------------------Tạo action---------------------------------------
+const SET_JOB = "set_job";
+const ADD_JOB = "add_job";
+const DELETE_JOB = "delete_job";
+const CHECK_JOB = "check_job";
+const DELETE_COMPLETE = "delete_complete";
+const setJob = (payload) => {
+  return {
+    type: SET_JOB,
+    payload,
+  };
+};
+const addJob = (payload) => {
+  return {
+    type: ADD_JOB,
+    payload,
+  };
+};
+const deleteJob = (payload) => {
+  return {
+    type: DELETE_JOB,
+    payload,
+  };
+};
+const checkJob = (payload) => {
+  return {
+    type: CHECK_JOB,
+    payload,
+  };
+};
+const deleteComplete = (payload) => {
+  return {
+    type: DELETE_COMPLETE,
+    payload,
+  };
+};
+
+// -------------------------------Tạo reducer-------------------------------------------
+const reducer = (state, action) => {
+  // console.log("State:", state);
+  // console.log("Action:", action);
+  let newState;
+  switch (action.type) {
+    case SET_JOB:
+      newState = {
+        ...state,
+        job: action.payload,
+      };
+      break;
+    case ADD_JOB:
+      newState = {
+        ...state,
+        jobs: [...state.jobs, action.payload],
+      };
+      setLocalStorage("jobs",newState.jobs);
+      break;
+    case DELETE_JOB:
+      const newJob = [...state.jobs];
+      newJob.splice(action.payload, 1);
+      newState = {
+        ...state,
+        jobs: newJob,
+      };
+      setLocalStorage("jobs", newState.jobs);
+      break;
+    case CHECK_JOB:
+      const newCheck = [...state.jobs];
+      const newJobs = [...state.jobs];
+      newJobs.splice(action.payload, 1);
+      newState = {
+        // payload: index
+        ...state,
+        check: [...state.check, newCheck[action.payload]],
+        jobs: newJobs,
+      };
+      setLocalStorage("jobs", newState.jobs);
+      setLocalStorage("jobsComplete", newState.check);
+      break;
+    case DELETE_COMPLETE:
+      const newChecks = [...state.check];
+      newChecks.splice(action.payload, 1);
+      newState = {
+        // payload: index
+        ...state,
+        check: newChecks,
+      };
+      setLocalStorage("jobsComplete", newState.check);
+      break;
+    default:
+      throw new Error("Invalid action");
+  }
+  // console.log("New state", newState);
+  return newState;
+};
+
+// -----------------------dispatch-----------------------------------
 
 const CardToDo = () => {
   const rex = /^[\s\W]/;
   // Công việc người dùng nhập
-  const [todo, setTodo] = useState("");
-  // Danh sách công việc người dùng đã nhập, ban đầu nó là 1 mảng rỗng
-  const [jobs, setJobs] = useState(() => {
-    return localStorage.getItem("JobTodoList") !== null
-      ? JSON.parse(localStorage.getItem("JobTodoList"))
-      : [];
-  });
-  console.log("job", jobs);
-  // Danh sách các công việc đã hoàn thành
-  const [check, setCheck] = useState(() => {
-    return localStorage.getItem("JobTodoListDone") !== null
-      ? JSON.parse(localStorage.getItem("JobTodoListDone"))
-      : [];
-  });
 
-  const setLocalStorage = (key, value) => {
-    localStorage.setItem(key, JSON.stringify(value));
-  };
-  // -------------------------HÀM TẠO MỚI CÔNG VIỆC SAU MỖI LẦN BẤM NÚT------------
-  const handleSubmit = () => {
-    if(todo===undefined || todo===null || todo==="") return;
-    setJobs((prev) => {
-      const newJobs = [...prev, todo];
-      setLocalStorage("JobTodoList", newJobs);
-      return newJobs;
-    });
-    setTodo("");
-  };
-  // ------------------------------ HÀM XÓA CÔNG VIỆC---------------------------------
-  const handleDelete = (id) => {
-    // console.log(jobs);
-    jobs.splice(id, 1);
-    // Sao chép lại mảng hiện tại đang bị xóa.
-    let jobRemaining = [...jobs];
-    // console.log(jobs);
-    setLocalStorage("JobTodoList", jobRemaining);
-    return setJobs(jobRemaining);
-  };
-  // ------------------------- HÀM XÓA CÔNG VIỆC HOÀN THÀNH-----------------------------
-  const handleDeleteComplete = (id) => {
-    // console.log(jobs);
-    check.splice(id, 1);
-    // Sao chép lại mảng hiện tại đang bị xóa.
-    let jobRemaining = [...check];
-    // console.log(jobs);
-    setLocalStorage("JobTodoListDone", jobRemaining);
-    return setCheck(jobRemaining);
-  };
-  // ------------------------------HÀM CHECK VIỆC ĐÃ LÀM-------------------------------
-  const handleCheck = (id) => {
-    // Lọc qua danh sách công việc, lấy ra công việc đang check
-    let Filter = jobs.filter((item, index) => index === id);
-    console.log(Filter);
-    // khi check thì đồng nghĩa xóa đi phần tử trong danh sách công việc
-    jobs.splice(id, 1);
-    let jobRemaining = [...jobs];
-    // Đồng thời cập nhật lại localStorage
-    setLocalStorage("JobTodoList", jobRemaining);
-    // Sau đó sẽ đưa giá trị đã xóa xuống danh sách hoàn thành
-    let jobAdded = [...check, ...Filter];
 
-    setLocalStorage("JobTodoListDone", jobAdded);
-    return setCheck(jobAdded);
-  };
-  function reg(e){
-    if (rex.test(e.target.value)) {
-      return;
-    } else {
-      setTodo(e.target.value);
+  
+  // ---------------------------CHECK ĐẦU VÀO----------------------------
+  function checkInput(e) {
+    let value = e.target.value;
+    if (rex.test(value)) return;
+    else {
+      dispatch(setJob(value));
     }
   }
+  // -------------------------HÀM TẠO MỚI CÔNG VIỆC SAU MỖI LẦN BẤM NÚT------------
+  const handleSubmit = () => {
+    if(job===null || job===""|| job===undefined) return;
+    dispatch(addJob(job));
+    dispatch(setJob(""));
+  };
+  // --------------------------HÀM XÓA CÔNG VIỆC-------------------------------------
+  const handleDelete = (id) => {
+    dispatch(deleteJob(id));
+  };
+  // -------------------------HÀM CHECK CÔNG VIỆC ĐÃ LÀM-------------------------------
+  const handleCheck = (id) => {
+    dispatch(checkJob(id));
+  };
+  // ------------------------ HÀM XÓA CÔNG VIỆC ĐÃ LÀM----------------------------------
+  const handleDeleteComplete = (id) => {
+    dispatch(deleteComplete(id));
+  };
   // --------------------- RENDER GIAO DIỆN-------------------------------------
-  
+  const [state, dispatch] = useReducer(reducer, initState);
+  const { job, jobs, check } = state;
+  // console.log(job, jobs, check);
   return (
     <div>
       <div className="card__add">
@@ -84,8 +156,8 @@ const CardToDo = () => {
           name="newTask"
           type="text"
           placeholder="Enter an activity..."
-          value={todo}
-          onChange={(e) => reg(e)}
+          value={job}
+          onChange={(e) => checkInput(e)}
         />
         <button onClick={handleSubmit} id="addItem">
           <i className="fa fa-plus"></i>
