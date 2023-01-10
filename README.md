@@ -22,3 +22,6 @@
 - action: mang 2 giá trị là type và payload => payload là value được truyền khi dispatch khởi chạy
 => reducer sẽ dựa vào type để sử lí bên trong
 - dispatch: dùng để khởi động reducer
+
+## Sơ đồ vòng đời của useReducer
+![image](https://user-images.githubusercontent.com/114068860/211465546-7984b301-dcf4-4460-bfff-65d2f09d4bf9.png)
